@@ -1,17 +1,26 @@
+﻿using LeHoangAnh_2122110549.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
+// Thêm DbContext vào DI container (Đảm bảo dòng này ở TRƯỚC builder.Build())
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+// Thêm các dịch vụ khác
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Cấu hình HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -19,11 +28,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
